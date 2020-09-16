@@ -1,5 +1,6 @@
 # pipeline
 1. Data collection and initial processing
+This process contains image_converter and object3d_detecter. Each of them receives images from a fisheye cam and a lider and processes them for the first time.image_converters makes bbox and object3d_detecter makes groups of points. These data will be published and further used through the later process.
 
 1.1 image_converter 
 image_converter node subscribes orginal img data from fisheye camera and publish inference results creating child thread. 
@@ -27,4 +28,17 @@ parse(cam)->detect(by trt_ssd.detect) human->make bbox and publish
 object3d_detecter conducts clustering points from lidar. It also calculate centroid, and min & max value of x,y, z postion and publish it.
 
 1.2.1 function call 
-Object3dDetector
+Object3dDetector::pointCloudCallback{extractCluster, classify}
+
+1.2.1.1 extractCluster
+It compare distances of pc_indices(from lidar) with range. If distance is in range, then push it to indices_array. (do space divde) And it
+set cluster_size min, max value. Also it conducts clustering, set(calculate) width, height, centroid. And limit size(not accurate).
+
+1.2.1.2 classify
+It marks id, min& max values, frame_id, and colors. And it sets position of pose as centroid. 
+
+1.2.1.3 pointCloudCallback
+It calls function extractCluster, and classify. After, it prints fps and time.
+
+1.2.2 overall
+Divide space(comparing distance)->clustering->classifying->publishing & printing
